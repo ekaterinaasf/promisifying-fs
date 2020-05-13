@@ -21,7 +21,7 @@ log(1, fileToRead);
 const fileName2 = process.argv[3];
 const fileToAppend = path.join(__dirname, fileName2);
 log(2, fileToAppend);
-
+/*
 log(3, `reading original contents from ${fileName2} ...`);
 fs.readFile(fileToAppend, `utf-8`, (err, oldContents) => {
   if (err) {
@@ -60,7 +60,7 @@ fs.readFile(fileToAppend, `utf-8`, (err, oldContents) => {
       });
     });
   });
-});
+});*/
 // pass: 13/05/2020, 20:12:53
 // pass: 13/05/2020, 20:12:56
 
@@ -68,3 +68,31 @@ fs.readFile(fileToAppend, `utf-8`, (err, oldContents) => {
 const util = require("util");
 const readFilePromise = util.promisify(fs.readFile);
 const appendFilePromise = util.promisify(fs.appendFile);
+
+log(3, `reading original contents from ${fileName2} ...`);
+readFilePromise(fileToAppend, "utf-8")
+  .then((oldContents) => {
+    log(4, `reading from ${fileName1} ...`);
+    readFilePromise(fileToRead, `utf-8`)
+      .then((contentToAppend) => {
+        log(5, `writing to ${fileName2} ...`);
+        appendFilePromise(fileToAppend, contentToAppend).then(() => {
+          log(6, `reading from ${fileName2} ...`);
+          readFilePromise(fileToAppend, "utf-8").then((newContent) => {
+            log(7, `asserting ...`);
+            assert.strictEqual(newContent, oldContents + contentToAppend);
+            log(8, "\033[32mpass!\x1b[0m");
+            fs.appendFileSync(
+              __filename,
+              `\n// pass: ${new Date().toLocaleString()}`
+            );
+          });
+        });
+      })
+
+      .catch((err) => console.error(err));
+  })
+  .catch((err) => console.error(err));
+
+// pass: 13/05/2020, 20:24:19
+// pass: 13/05/2020, 20:24:26
