@@ -8,11 +8,8 @@ const EXERCISE_NAME = path.basename(__filename);
 const START = Date.now();
 
 // declare logging function
-const log = (logId, value) => console.log(
-  `\nlog ${logId} (${Date.now() - START} ms):\n`,
-  value,
-);
-
+const log = (logId, value) =>
+  console.log(`\nlog ${logId} (${Date.now() - START} ms):\n`, value);
 
 // --- main script ---
 console.log(`\n--- ${EXERCISE_NAME} ---`);
@@ -55,14 +52,19 @@ fs.readFile(fileToAppend, `utf-8`, (err, oldContents) => {
 
         log(7, `asserting ...`);
         assert.strictEqual(newContent, oldContents + contentToAppend);
-        log(8, '\033[32mpass!\x1b[0m');
-        fs.appendFileSync(__filename, `\n// pass: ${(new Date()).toLocaleString()}`);
+        log(8, "\033[32mpass!\x1b[0m");
+        fs.appendFileSync(
+          __filename,
+          `\n// pass: ${new Date().toLocaleString()}`
+        );
       });
     });
-
   });
-
 });
+// pass: 13/05/2020, 20:12:53
+// pass: 13/05/2020, 20:12:56
 
-
-
+//Refactored
+const util = require("util");
+const readFilePromise = util.promisify(fs.readFile);
+const appendFilePromise = util.promisify(fs.appendFile);

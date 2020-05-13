@@ -8,11 +8,8 @@ const EXERCISE_NAME = path.basename(__filename);
 const START = Date.now();
 
 // declare logging function
-const log = (logId, value) => console.log(
-  `\nlog ${logId} (${Date.now() - START} ms):\n`,
-  value,
-);
-
+const log = (logId, value) =>
+  console.log(`\nlog ${logId} (${Date.now() - START} ms):\n`, value);
 
 // --- main script ---
 console.log(`\n--- ${EXERCISE_NAME} ---`);
@@ -24,7 +21,7 @@ log(1, filePath);
 const newFileContent = process.argv[3];
 log(2, newFileContent);
 
-
+/*
 log(3, `writing ${fileName} ...`);
 fs.writeFile(filePath, newFileContent, (err) => {
   if (err) {
@@ -41,12 +38,31 @@ fs.writeFile(filePath, newFileContent, (err) => {
 
     log(5, `asserting ...`);
     assert.strictEqual(fileContent, newFileContent);
-    log(6, '\033[32mpass!\x1b[0m');
-    fs.appendFileSync(__filename, `\n// pass: ${(new Date()).toLocaleString()}`);
+    log(6, "\033[32mpass!\x1b[0m");
+    fs.appendFileSync(__filename, `\n// pass: ${new Date().toLocaleString()}`);
   });
+});*/
 
-});
+//Refactored
+const util = require("util");
+const readFilePromise = util.promisify(fs.readFile);
+const writeFilePromise = util.promisify(fs.writeFile);
 
-
-
-
+log(2, `writing file ${fileName}...`);
+writeFilePromise(filePath, newFileContent)
+  .then(() => {
+    log(3, `reading file ${fileName}...`);
+    readFilePromise(filePath, "utf-8")
+      .then((fileContent) => {
+        log(4, "asserting ...");
+        assert.strictEqual(fileContent, newFileContent);
+        log(5, "\033[32mpass!\x1b[0m");
+        // you don't need to refactor this line
+        fs.appendFileSync(
+          __filename,
+          `\n// pass: ${new Date().toLocaleString()}`
+        );
+      })
+      .catch((err) => console.error(err));
+  })
+  .catch((err) => console.error(err));
